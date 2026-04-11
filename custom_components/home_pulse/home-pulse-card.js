@@ -346,7 +346,7 @@ class HomePulseCard extends HTMLElement {
       .map((s) => ({
         entity_id: s.entity_id,
         task_id: s.attributes.task_id,
-        title: s.attributes.friendly_name ?? s.entity_id,
+        title: s.attributes.title ?? s.attributes.friendly_name ?? s.entity_id,
         is_due: s.state === "on",
         days_until_next: s.attributes.days_until_next ?? 0,
         next_due_date: s.attributes.next_due_date ?? "",

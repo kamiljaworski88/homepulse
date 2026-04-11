@@ -66,7 +66,6 @@ class HomePulseBinarySensor(CoordinatorEntity[HomePulseCoordinator], BinarySenso
     """
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_has_entity_name = True
 
     def __init__(self, coordinator: HomePulseCoordinator, task_id: str) -> None:
         super().__init__(coordinator)
@@ -112,6 +111,7 @@ class HomePulseBinarySensor(CoordinatorEntity[HomePulseCoordinator], BinarySenso
             return {}
         return {
             "task_id": task["id"],
+            "title": task["title"],
             "days_until_next": task["days_until_next"],
             "next_due_date": task["next_due_date"],
             "overdue_by_days": task["overdue_by_days"],

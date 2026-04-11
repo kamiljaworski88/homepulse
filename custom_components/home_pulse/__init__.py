@@ -184,7 +184,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         schema=vol.Schema(
             {
                 vol.Required(ATTR_TITLE): str,
-                vol.Required(ATTR_INTERVAL_VALUE): vol.All(int, vol.Range(min=1)),
+                vol.Required(ATTR_INTERVAL_VALUE): vol.All(vol.Coerce(int), vol.Range(min=1)),
                 vol.Required(ATTR_INTERVAL_UNIT): vol.In(INTERVAL_UNITS),
                 vol.Optional(ATTR_GOOGLE_CALENDAR_ENTITY, default=""): str,
             }
@@ -199,7 +199,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             {
                 vol.Required(ATTR_TASK_ID): str,
                 vol.Required(ATTR_TITLE): str,
-                vol.Required(ATTR_INTERVAL_VALUE): vol.All(int, vol.Range(min=1)),
+                vol.Required(ATTR_INTERVAL_VALUE): vol.All(vol.Coerce(int), vol.Range(min=1)),
                 vol.Required(ATTR_INTERVAL_UNIT): vol.In(INTERVAL_UNITS),
                 vol.Optional(ATTR_GOOGLE_CALENDAR_ENTITY, default=""): str,
             }
