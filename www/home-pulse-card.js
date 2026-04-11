@@ -102,13 +102,13 @@ const STYLES = `
     gap: 10px;
     padding: 10px 12px;
     border-radius: 12px;
-    background: #ffffff;
+    background: var(--card-background-color, #ffffff);
     border: 1px solid var(--divider-color);
     transition: border-color 0.2s;
   }
 
   .task-item.overdue {
-    background: color-mix(in srgb, var(--error-color) 8%, #ffffff);
+    background: color-mix(in srgb, var(--error-color) 8%, var(--card-background-color, #ffffff));
     border-left: 3px solid var(--error-color);
     border-color: var(--error-color);
   }
@@ -185,7 +185,7 @@ const STYLES = `
   /* ── Forms (add & edit) ── */
   .add-form, .edit-form {
     border-radius: 12px;
-    background: #ffffff;
+    background: var(--card-background-color, #ffffff);
     border: 1px solid var(--primary-color);
     padding: 14px;
     display: flex;
