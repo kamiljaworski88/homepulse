@@ -8,7 +8,6 @@
  */
 
 const DOMAIN = "home_pulse";
-const SENSOR_PREFIX = "binary_sensor.home_pulse_";
 
 // ── Icons by keyword ─────────────────────────────────────────────────────────
 const ICON_MAP = [
@@ -73,9 +72,7 @@ const STYLES = `
     gap: 8px;
   }
 
-  .header-title ha-icon {
-    color: var(--primary-color);
-  }
+  .header-title ha-icon { color: var(--primary-color); }
 
   .btn-add {
     background: var(--primary-color);
@@ -89,11 +86,11 @@ const STYLES = `
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, transform 0.15s;
+    transition: filter 0.2s, transform 0.15s;
     flex-shrink: 0;
   }
 
-  .btn-add:hover { background: var(--primary-color); filter: brightness(1.15); }
+  .btn-add:hover { filter: brightness(1.15); }
   .btn-add.active { background: var(--error-color); transform: rotate(45deg); }
 
   /* ── Task list ── */
@@ -105,13 +102,15 @@ const STYLES = `
     gap: 10px;
     padding: 10px 12px;
     border-radius: 12px;
-    background: var(--secondary-background-color);
-    transition: background 0.2s;
+    background: var(--card-background-color);
+    border: 1px solid var(--divider-color);
+    transition: border-color 0.2s;
   }
 
   .task-item.overdue {
-    background: color-mix(in srgb, var(--error-color) 12%, var(--secondary-background-color));
+    background: color-mix(in srgb, var(--error-color) 8%, var(--card-background-color));
     border-left: 3px solid var(--error-color);
+    border-color: var(--error-color);
   }
 
   .task-icon {
@@ -156,10 +155,10 @@ const STYLES = `
     background: var(--primary-color);
   }
 
-  .progress-fill.warn { background: var(--warning-color, #ff9800); }
+  .progress-fill.warn   { background: var(--warning-color, #ff9800); }
   .progress-fill.danger { background: var(--error-color); }
 
-  .task-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .task-actions { display: flex; gap: 4px; flex-shrink: 0; }
 
   .btn-icon {
     background: none;
@@ -175,36 +174,53 @@ const STYLES = `
     color: var(--secondary-text-color);
   }
 
-  .btn-icon:hover { background: var(--secondary-background-color); filter: brightness(0.85); }
+  .btn-icon:hover   { background: rgba(0,0,0,0.06); }
   .btn-icon.complete { color: var(--success-color, #4caf50); }
-  .btn-icon.delete { color: var(--error-color); }
-  .btn-icon.complete:hover { background: color-mix(in srgb, var(--success-color, #4caf50) 15%, transparent); }
-  .btn-icon.delete:hover { background: color-mix(in srgb, var(--error-color) 15%, transparent); }
+  .btn-icon.edit     { color: var(--primary-color); }
+  .btn-icon.delete   { color: var(--error-color); }
+  .btn-icon.complete:hover { background: color-mix(in srgb, var(--success-color,#4caf50) 12%, transparent); }
+  .btn-icon.edit:hover     { background: color-mix(in srgb, var(--primary-color) 12%, transparent); }
+  .btn-icon.delete:hover   { background: color-mix(in srgb, var(--error-color) 12%, transparent); }
 
-  /* ── Add-task form ── */
-  .add-form {
+  /* ── Forms (add & edit) ── */
+  .add-form, .edit-form {
     border-radius: 12px;
-    background: var(--secondary-background-color);
+    background: var(--card-background-color);
+    border: 1px solid var(--primary-color);
     padding: 14px;
-    margin-top: 4px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    animation: slideDown 0.2s ease;
+    animation: slideDown 0.18s ease;
+  }
+
+  .edit-form {
+    border-color: var(--primary-color);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .edit-form-header {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-6px); }
+    from { opacity: 0; transform: translateY(-5px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  .form-row { display: flex; gap: 8px; align-items: center; }
-  .form-row.triple { gap: 6px; }
+  .form-row { display: flex; gap: 8px; align-items: flex-end; }
 
   .form-label {
     font-size: 0.75rem;
     color: var(--secondary-text-color);
-    margin-bottom: 2px;
+    margin-bottom: 3px;
   }
 
   .form-group { display: flex; flex-direction: column; flex: 1; }
@@ -223,9 +239,7 @@ const STYLES = `
     transition: border-color 0.2s;
   }
 
-  input:focus, select:focus {
-    border-color: var(--primary-color);
-  }
+  input:focus, select:focus { border-color: var(--primary-color); }
 
   .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 
@@ -242,6 +256,7 @@ const STYLES = `
   }
 
   .btn-submit:hover { filter: brightness(1.1); }
+  .btn-submit:disabled { opacity: 0.6; cursor: default; }
 
   .btn-cancel {
     background: none;
@@ -280,7 +295,9 @@ class HomePulseCard extends HTMLElement {
     this._config = {};
     this._hass = null;
     this._showForm = false;
+    this._editingTaskId = null;
     this._form = { title: "", interval_value: "30", interval_unit: "days", google_calendar_entity: "" };
+    this._editForm = { title: "", interval_value: "30", interval_unit: "days", google_calendar_entity: "" };
     this._submitting = false;
   }
 
@@ -295,8 +312,8 @@ class HomePulseCard extends HTMLElement {
     const prevHass = this._hass;
     this._hass = hass;
 
-    // Never re-render while the add-task form is open — prevents losing typed input
-    if (this._showForm) return;
+    // Don't re-render while user is typing in add or edit form
+    if (this._showForm || this._editingTaskId) return;
 
     // Re-render only when a home_pulse task entity actually changed
     const taskEntities = (states) =>
@@ -360,6 +377,38 @@ class HomePulseCard extends HTMLElement {
     await this._hass.callService(DOMAIN, "delete_task", { task_id: taskId });
   }
 
+  _startEdit(task) {
+    this._editingTaskId = task.task_id;
+    this._editForm = {
+      title: task.title,
+      interval_value: String(task.interval_value),
+      interval_unit: task.interval_unit,
+      google_calendar_entity: task.google_calendar_entity,
+    };
+    this._showForm = false;
+    this._render();
+  }
+
+  async _submitEdit() {
+    const { title, interval_value, interval_unit, google_calendar_entity } = this._editForm;
+    if (!title.trim()) return;
+    this._submitting = true;
+    this._render();
+    try {
+      await this._hass.callService(DOMAIN, "update_task", {
+        task_id: this._editingTaskId,
+        title: title.trim(),
+        interval_value: parseInt(interval_value, 10),
+        interval_unit,
+        ...(google_calendar_entity ? { google_calendar_entity } : {}),
+      });
+      this._editingTaskId = null;
+    } finally {
+      this._submitting = false;
+      this._render();
+    }
+  }
+
   async _submitForm() {
     const { title, interval_value, interval_unit, google_calendar_entity } = this._form;
     if (!title.trim()) return;
@@ -408,15 +457,19 @@ class HomePulseCard extends HTMLElement {
           <ha-icon icon="mdi:home-heart"></ha-icon>
           ${this._esc(title)}
         </div>
-        <button class="btn-add${this._showForm ? " active" : ""}" data-action="toggle-form" title="${this._showForm ? "Anuluj" : "Dodaj zadanie"}">
+        <button class="btn-add${this._showForm ? " active" : ""}" data-action="toggle-form"
+          title="${this._showForm ? "Anuluj" : "Dodaj zadanie"}">
           ${this._showForm ? "×" : "+"}
         </button>
       </div>
 
       <div class="task-list">
-        ${this._showForm ? this._formHtml(calendars) : ""}
+        ${this._showForm ? this._addFormHtml(calendars) : ""}
         ${tasks.length === 0 && !this._showForm ? this._emptyHtml() : ""}
-        ${tasks.map((t) => this._taskHtml(t)).join("")}
+        ${tasks.map((t) => this._editingTaskId === t.task_id
+          ? this._editFormHtml(t, calendars)
+          : this._taskHtml(t)
+        ).join("")}
       </div>
     `;
   }
@@ -436,7 +489,7 @@ class HomePulseCard extends HTMLElement {
     }
 
     return `
-      <div class="task-item${overdue || task.days_until_next === 0 ? " overdue" : ""}" data-task-id="${task.task_id}">
+      <div class="task-item${overdue || task.days_until_next === 0 ? " overdue" : ""}">
         <ha-icon class="task-icon${overdue ? " overdue" : ""}" icon="${getIcon(task.title)}"></ha-icon>
         <div class="task-body">
           <div class="task-title">${this._esc(task.title)}</div>
@@ -449,6 +502,9 @@ class HomePulseCard extends HTMLElement {
           <button class="btn-icon complete" data-action="complete" data-task-id="${task.task_id}" title="Oznacz jako wykonane">
             <ha-icon icon="mdi:check-circle-outline"></ha-icon>
           </button>
+          <button class="btn-icon edit" data-action="edit" data-task-id="${task.task_id}" title="Edytuj zadanie">
+            <ha-icon icon="mdi:pencil-outline"></ha-icon>
+          </button>
           <button class="btn-icon delete" data-action="delete" data-task-id="${task.task_id}" title="Usuń zadanie">
             <ha-icon icon="mdi:trash-can-outline"></ha-icon>
           </button>
@@ -457,28 +513,76 @@ class HomePulseCard extends HTMLElement {
     `;
   }
 
-  _formHtml(calendars) {
+  _editFormHtml(task, calendars) {
+    const f = this._editForm;
     const calOptions = calendars
-      .map((c) => `<option value="${c}"${this._form.google_calendar_entity === c ? " selected" : ""}>${c}</option>`)
+      .map((c) => `<option value="${c}"${f.google_calendar_entity === c ? " selected" : ""}>${c}</option>`)
+      .join("");
+
+    return `
+      <div class="edit-form">
+        <div class="edit-form-header">
+          <ha-icon icon="mdi:pencil"></ha-icon>
+          Edytuj zadanie
+        </div>
+        <div class="form-group">
+          <div class="form-label">Nazwa zadania</div>
+          <input type="text" data-field="edit-title" value="${this._esc(f.title)}" />
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:0 0 80px">
+            <div class="form-label">Co ile</div>
+            <input type="number" data-field="edit-interval_value" min="1" max="365" value="${f.interval_value}" />
+          </div>
+          <div class="form-group" style="flex:0 0 110px">
+            <div class="form-label">Jednostka</div>
+            <select data-field="edit-interval_unit">
+              <option value="days"${f.interval_unit === "days" ? " selected" : ""}>dni</option>
+              <option value="weeks"${f.interval_unit === "weeks" ? " selected" : ""}>tygodnie</option>
+              <option value="months"${f.interval_unit === "months" ? " selected" : ""}>miesiące</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Kalendarz</div>
+            <select data-field="edit-google_calendar_entity">
+              <option value="">— brak —</option>
+              ${calOptions}
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" data-action="cancel-edit">Anuluj</button>
+          <button class="btn-submit" data-action="save-edit" ${this._submitting ? "disabled" : ""}>
+            ${this._submitting ? "Zapisywanie…" : "Zapisz"}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  _addFormHtml(calendars) {
+    const f = this._form;
+    const calOptions = calendars
+      .map((c) => `<option value="${c}"${f.google_calendar_entity === c ? " selected" : ""}>${c}</option>`)
       .join("");
 
     return `
       <div class="add-form">
         <div class="form-group">
           <div class="form-label">Nazwa zadania</div>
-          <input type="text" data-field="title" placeholder="np. Wymiana filtrów" value="${this._esc(this._form.title)}" />
+          <input type="text" data-field="title" placeholder="np. Wymiana filtrów" value="${this._esc(f.title)}" />
         </div>
-        <div class="form-row triple">
+        <div class="form-row">
           <div class="form-group" style="flex:0 0 80px">
             <div class="form-label">Co ile</div>
-            <input type="number" data-field="interval_value" min="1" max="365" value="${this._form.interval_value}" />
+            <input type="number" data-field="interval_value" min="1" max="365" value="${f.interval_value}" />
           </div>
           <div class="form-group" style="flex:0 0 110px">
             <div class="form-label">Jednostka</div>
             <select data-field="interval_unit">
-              <option value="days"${this._form.interval_unit === "days" ? " selected" : ""}>dni</option>
-              <option value="weeks"${this._form.interval_unit === "weeks" ? " selected" : ""}>tygodnie</option>
-              <option value="months"${this._form.interval_unit === "months" ? " selected" : ""}>miesiące</option>
+              <option value="days"${f.interval_unit === "days" ? " selected" : ""}>dni</option>
+              <option value="weeks"${f.interval_unit === "weeks" ? " selected" : ""}>tygodnie</option>
+              <option value="months"${f.interval_unit === "months" ? " selected" : ""}>miesiące</option>
             </select>
           </div>
           <div class="form-group">
@@ -525,39 +629,67 @@ class HomePulseCard extends HTMLElement {
       const action = btn.dataset.action;
       const taskId = btn.dataset.taskId;
 
-      if (action === "toggle-form") {
-        this._showForm = !this._showForm;
-        this._render();
-      } else if (action === "cancel-form") {
-        this._showForm = false;
-        this._render();
-      } else if (action === "complete") {
-        this._completeTask(taskId);
-      } else if (action === "delete") {
-        this._deleteTask(taskId);
-      } else if (action === "submit-form") {
-        this._submitForm();
+      switch (action) {
+        case "toggle-form":
+          this._showForm = !this._showForm;
+          this._editingTaskId = null;
+          this._render();
+          break;
+        case "cancel-form":
+          this._showForm = false;
+          this._render();
+          break;
+        case "submit-form":
+          this._submitForm();
+          break;
+        case "complete":
+          this._completeTask(taskId);
+          break;
+        case "edit": {
+          const task = this._getTasks().find((t) => t.task_id === taskId);
+          if (task) this._startEdit(task);
+          break;
+        }
+        case "cancel-edit":
+          this._editingTaskId = null;
+          this._render();
+          break;
+        case "save-edit":
+          this._submitEdit();
+          break;
+        case "delete":
+          this._deleteTask(taskId);
+          break;
       }
     });
 
-    // Live-sync form inputs to state
+    // Live-sync add form inputs
     card.addEventListener("input", (e) => {
       const el = e.target.closest("[data-field]");
       if (!el) return;
-      this._form[el.dataset.field] = el.value;
+      const field = el.dataset.field;
+      if (field.startsWith("edit-")) {
+        this._editForm[field.slice(5)] = el.value;
+      } else {
+        this._form[field] = el.value;
+      }
     });
 
     card.addEventListener("change", (e) => {
       const el = e.target.closest("[data-field]");
       if (!el) return;
-      this._form[el.dataset.field] = el.value;
+      const field = el.dataset.field;
+      if (field.startsWith("edit-")) {
+        this._editForm[field.slice(5)] = el.value;
+      } else {
+        this._form[field] = el.value;
+      }
     });
   }
 }
 
 customElements.define("home-pulse-card", HomePulseCard);
 
-// Register card in HA's custom card picker
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "home-pulse-card",

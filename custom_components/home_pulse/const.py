@@ -14,6 +14,7 @@ SIGNAL_DELETE_TASK = f"{DOMAIN}_delete_task"
 # Service names
 SERVICE_COMPLETE_TASK = "complete_task"
 SERVICE_ADD_TASK = "add_task"
+SERVICE_UPDATE_TASK = "update_task"
 SERVICE_DELETE_TASK = "delete_task"
 
 # Service / task attributes

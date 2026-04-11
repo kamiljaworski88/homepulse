@@ -27,6 +27,7 @@ from .const import (
     SERVICE_ADD_TASK,
     SERVICE_COMPLETE_TASK,
     SERVICE_DELETE_TASK,
+    SERVICE_UPDATE_TASK,
     SIGNAL_DELETE_TASK,
     SIGNAL_NEW_TASK,
 )
@@ -139,6 +140,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         async_dispatcher_send(hass, SIGNAL_NEW_TASK, task)
 
     # ------------------------------------------------------------------ #
+    # Service: home_pulse.update_task                                      #
+    # ------------------------------------------------------------------ #
+    async def handle_update_task(call: ServiceCall) -> None:
+        task_id: str = call.data[ATTR_TASK_ID]
+        if not storage.get_task(task_id):
+            _LOGGER.error("update_task: task '%s' not found", task_id)
+            return
+        await storage.async_update_task(
+            task_id,
+            title=call.data[ATTR_TITLE],
+            interval_value=call.data[ATTR_INTERVAL_VALUE],
+            interval_unit=call.data[ATTR_INTERVAL_UNIT],
+            google_calendar_entity=call.data.get(ATTR_GOOGLE_CALENDAR_ENTITY, ""),
+        )
+        await coordinator.async_request_refresh()
+
+    # ------------------------------------------------------------------ #
     # Service: home_pulse.delete_task                                      #
     # ------------------------------------------------------------------ #
     async def handle_delete_task(call: ServiceCall) -> None:
@@ -174,6 +192,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.services.async_register(
         DOMAIN,
+        SERVICE_UPDATE_TASK,
+        handle_update_task,
+        schema=vol.Schema(
+            {
+                vol.Required(ATTR_TASK_ID): str,
+                vol.Required(ATTR_TITLE): str,
+                vol.Required(ATTR_INTERVAL_VALUE): vol.All(int, vol.Range(min=1)),
+                vol.Required(ATTR_INTERVAL_UNIT): vol.In(INTERVAL_UNITS),
+                vol.Optional(ATTR_GOOGLE_CALENDAR_ENTITY, default=""): str,
+            }
+        ),
+    )
+
+    hass.services.async_register(
+        DOMAIN,
         SERVICE_DELETE_TASK,
         handle_delete_task,
         schema=vol.Schema({vol.Required(ATTR_TASK_ID): str}),
@@ -187,6 +220,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id)
-        for service in (SERVICE_COMPLETE_TASK, SERVICE_ADD_TASK, SERVICE_DELETE_TASK):
+        for service in (SERVICE_COMPLETE_TASK, SERVICE_ADD_TASK, SERVICE_UPDATE_TASK, SERVICE_DELETE_TASK):
             hass.services.async_remove(DOMAIN, service)
     return unloaded
