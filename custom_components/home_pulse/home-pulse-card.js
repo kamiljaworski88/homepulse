@@ -292,8 +292,24 @@ class HomePulseCard extends HTMLElement {
   }
 
   set hass(hass) {
+    const prevHass = this._hass;
     this._hass = hass;
-    this._render();
+
+    // Never re-render while the add-task form is open — prevents losing typed input
+    if (this._showForm) return;
+
+    // Re-render only when a home_pulse task entity actually changed
+    const taskEntities = (states) =>
+      Object.keys(states).filter((id) => states[id].attributes.task_id !== undefined);
+
+    const prev = taskEntities(prevHass ? prevHass.states : {});
+    const curr = taskEntities(hass.states);
+    const changed =
+      !prevHass ||
+      prev.length !== curr.length ||
+      curr.some((id) => prevHass.states[id] !== hass.states[id]);
+
+    if (changed) this._render();
   }
 
   static getConfigElement() {
