@@ -102,13 +102,13 @@ const STYLES = `
     gap: 10px;
     padding: 10px 12px;
     border-radius: 12px;
-    background: var(--card-background-color);
+    background: #ffffff;
     border: 1px solid var(--divider-color);
     transition: border-color 0.2s;
   }
 
   .task-item.overdue {
-    background: color-mix(in srgb, var(--error-color) 8%, var(--card-background-color));
+    background: color-mix(in srgb, var(--error-color) 8%, #ffffff);
     border-left: 3px solid var(--error-color);
     border-color: var(--error-color);
   }
@@ -174,18 +174,18 @@ const STYLES = `
     color: var(--secondary-text-color);
   }
 
-  .btn-icon:hover   { background: rgba(0,0,0,0.06); }
+  .btn-icon:hover    { background: rgba(0,0,0,0.06); }
   .btn-icon.complete { color: var(--success-color, #4caf50); }
-  .btn-icon.edit     { color: var(--primary-color); }
+  .btn-icon.edit     { color: #ffffff; background: var(--primary-color); border-radius: 8px; }
   .btn-icon.delete   { color: var(--error-color); }
   .btn-icon.complete:hover { background: color-mix(in srgb, var(--success-color,#4caf50) 12%, transparent); }
-  .btn-icon.edit:hover     { background: color-mix(in srgb, var(--primary-color) 12%, transparent); }
+  .btn-icon.edit:hover     { filter: brightness(1.12); }
   .btn-icon.delete:hover   { background: color-mix(in srgb, var(--error-color) 12%, transparent); }
 
   /* ── Forms (add & edit) ── */
   .add-form, .edit-form {
     border-radius: 12px;
-    background: var(--card-background-color);
+    background: #ffffff;
     border: 1px solid var(--primary-color);
     padding: 14px;
     display: flex;
