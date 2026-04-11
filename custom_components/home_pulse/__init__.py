@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import os
+import shutil
 import uuid
 from datetime import date
 from typing import Any
@@ -10,7 +11,6 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.storage import Store
@@ -37,28 +37,30 @@ from .storage import HomePulseStorage
 
 _LOGGER = logging.getLogger(__name__)
 
-CARD_URL = "/homepulse/home-pulse-card.js"
+CARD_FILENAME = "home-pulse-card.js"
+CARD_URL = f"/local/{CARD_FILENAME}"
 LOVELACE_RESOURCES_STORAGE_KEY = "lovelace_resources"
 
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
-    """Register the card JS file as a static HTTP path and auto-add it to Lovelace resources."""
-    card_path = os.path.join(os.path.dirname(__file__), "home-pulse-card.js")
-
-    try:
-        await hass.http.async_register_static_paths(
-            [StaticPathConfig(CARD_URL, card_path, cache_headers=False)]
-        )
-        _LOGGER.debug("HomePulse: registered static path %s → %s", CARD_URL, card_path)
-    except Exception as err:  # noqa: BLE001
-        _LOGGER.warning("HomePulse: could not register static path: %s", err)
-
+    """Copy card JS to /config/www/ and register it as a Lovelace resource."""
+    await hass.async_add_executor_job(_copy_card_to_www, hass)
     await _async_ensure_lovelace_resource(hass)
     return True
 
 
+def _copy_card_to_www(hass: HomeAssistant) -> None:
+    """Blocking file copy — runs in executor so it doesn't block the event loop."""
+    src = os.path.join(os.path.dirname(__file__), CARD_FILENAME)
+    www_dir = hass.config.path("www")
+    os.makedirs(www_dir, exist_ok=True)
+    dst = os.path.join(www_dir, CARD_FILENAME)
+    shutil.copy2(src, dst)
+    _LOGGER.debug("HomePulse: copied %s → %s", src, dst)
+
+
 async def _async_ensure_lovelace_resource(hass: HomeAssistant) -> None:
-    """Add the card to Lovelace resources storage if not already present."""
+    """Add /local/home-pulse-card.js to Lovelace resources if not already present."""
     store = Store(hass, 1, LOVELACE_RESOURCES_STORAGE_KEY)
     data: dict[str, Any] = await store.async_load() or {"items": []}
     items: list[dict[str, Any]] = data.get("items", [])
@@ -70,8 +72,7 @@ async def _async_ensure_lovelace_resource(hass: HomeAssistant) -> None:
     data["items"] = items
     await store.async_save(data)
     _LOGGER.info(
-        "HomePulse: auto-registered card resource %s in Lovelace. "
-        "A full browser refresh (Ctrl+Shift+R) is required.",
+        "HomePulse: registered Lovelace resource %s — do Ctrl+Shift+R in browser.",
         CARD_URL,
     )
 
