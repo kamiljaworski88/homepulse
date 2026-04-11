@@ -2,5 +2,6 @@
   "name": "HomePulse",
   "homeassistant": "2024.1.0",
   "hacs": "2.0.0",
-  "render_readme": false
+  "render_readme": false,
+  "icon": "https://raw.githubusercontent.com/kamiljaworski88/homepulse/main/icon.png"
 }

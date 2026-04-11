@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <circle cx="256" cy="256" r="256" fill="#41BDF5"/>
+
+  <!-- House: roof -->
+  <polygon points="256,75 425,248 87,248" fill="white"/>
+
+  <!-- House: body -->
+  <rect x="117" y="240" width="278" height="145" fill="white"/>
+
+  <!-- Door (blue, arch top) -->
+  <path d="M210,300 Q210,276 222,276 L290,276 Q302,276 302,300 L302,385 L210,385 Z" fill="#41BDF5"/>
+
+  <!-- Left window -->
+  <rect x="140" y="254" width="58" height="50" rx="4" fill="#41BDF5"/>
+  <rect x="167" y="254" width="3"  height="50" fill="white"/>
+  <rect x="140" y="278" width="58" height="3"  fill="white"/>
+
+  <!-- Right window -->
+  <rect x="314" y="254" width="58" height="50" rx="4" fill="#41BDF5"/>
+  <rect x="341" y="254" width="3"  height="50" fill="white"/>
+  <rect x="314" y="278" width="58" height="3"  fill="white"/>
+
+  <!-- Clock badge: center (375, 408) -->
+  <!-- Outer blue ring r=70 -->
+  <circle cx="375" cy="408" r="70" fill="#41BDF5"/>
+  <!-- White face r=58 -->
+  <circle cx="375" cy="408" r="58" fill="white"/>
+
+  <!-- Tick marks (blue) -->
+  <line x1="375" y1="350" x2="375" y2="362" stroke="#41BDF5" stroke-width="5" stroke-linecap="round"/>
+  <line x1="433" y1="408" x2="421" y2="408" stroke="#41BDF5" stroke-width="5" stroke-linecap="round"/>
+  <line x1="375" y1="466" x2="375" y2="454" stroke="#41BDF5" stroke-width="5" stroke-linecap="round"/>
+  <line x1="317" y1="408" x2="329" y2="408" stroke="#41BDF5" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Hour hand: ~10 o'clock -->
+  <line x1="375" y1="408" x2="349" y2="393" stroke="#41BDF5" stroke-width="6" stroke-linecap="round"/>
+  <!-- Minute hand: 12 o'clock -->
+  <line x1="375" y1="408" x2="375" y2="366" stroke="#41BDF5" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- Center dot -->
+  <circle cx="375" cy="408" r="5" fill="#41BDF5"/>
+</svg>
