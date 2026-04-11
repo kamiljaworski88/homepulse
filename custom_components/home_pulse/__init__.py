@@ -2,13 +2,18 @@
 from __future__ import annotations
 
 import logging
+import os
+import uuid
 from datetime import date
+from typing import Any
 
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.dispatcher import async_dispatcher_send
+from homeassistant.helpers.storage import Store
 
 from .const import (
     ATTR_GOOGLE_CALENDAR_ENTITY,
@@ -30,6 +35,44 @@ from .google_calendar import async_create_calendar_event
 from .storage import HomePulseStorage
 
 _LOGGER = logging.getLogger(__name__)
+
+CARD_URL = "/homepulse/home-pulse-card.js"
+LOVELACE_RESOURCES_STORAGE_KEY = "lovelace_resources"
+
+
+async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
+    """Register the card JS file as a static HTTP path and auto-add it to Lovelace resources."""
+    card_path = os.path.join(os.path.dirname(__file__), "home-pulse-card.js")
+
+    try:
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig(CARD_URL, card_path, cache_headers=False)]
+        )
+        _LOGGER.debug("HomePulse: registered static path %s → %s", CARD_URL, card_path)
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.warning("HomePulse: could not register static path: %s", err)
+
+    await _async_ensure_lovelace_resource(hass)
+    return True
+
+
+async def _async_ensure_lovelace_resource(hass: HomeAssistant) -> None:
+    """Add the card to Lovelace resources storage if not already present."""
+    store = Store(hass, 1, LOVELACE_RESOURCES_STORAGE_KEY)
+    data: dict[str, Any] = await store.async_load() or {"items": []}
+    items: list[dict[str, Any]] = data.get("items", [])
+
+    if any(item.get("url") == CARD_URL for item in items):
+        return  # Already registered
+
+    items.append({"id": str(uuid.uuid4()), "type": "module", "url": CARD_URL})
+    data["items"] = items
+    await store.async_save(data)
+    _LOGGER.info(
+        "HomePulse: auto-registered card resource %s in Lovelace. "
+        "A full browser refresh (Ctrl+Shift+R) is required.",
+        CARD_URL,
+    )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
