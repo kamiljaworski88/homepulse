@@ -1,0 +1,68 @@
+complete_task:
+  name: Complete Task
+  description: >
+    Marks a HomePulse maintenance task as done today and schedules
+    the next occurrence in Google Calendar.
+  fields:
+    task_id:
+      name: Task ID
+      description: Unique identifier (UUID) of the task to mark as completed.
+      required: true
+      example: "550e8400-e29b-41d4-a716-446655440000"
+      selector:
+        text:
+
+add_task:
+  name: Add Task
+  description: Creates a new recurring maintenance task in HomePulse.
+  fields:
+    title:
+      name: Title
+      description: Short name of the maintenance task.
+      required: true
+      example: "Wymiana filtrów powietrza"
+      selector:
+        text:
+    interval_value:
+      name: Interval value
+      description: How often the task repeats (number).
+      required: true
+      example: 30
+      selector:
+        number:
+          min: 1
+          max: 365
+          mode: box
+    interval_unit:
+      name: Interval unit
+      description: Unit for the interval — days, weeks, or months.
+      required: true
+      example: "days"
+      selector:
+        select:
+          options:
+            - "days"
+            - "weeks"
+            - "months"
+    google_calendar_entity:
+      name: Google Calendar entity
+      description: >
+        Entity ID of a calendar entity in Home Assistant to sync with.
+        Leave empty to skip calendar sync.
+      required: false
+      example: "calendar.home"
+      selector:
+        entity:
+          domain: calendar
+
+delete_task:
+  name: Delete Task
+  description: Permanently removes a HomePulse task.
+  fields:
+    task_id:
+      name: Task ID
+      description: Unique identifier (UUID) of the task to delete.
+      required: true
+      example: "550e8400-e29b-41d4-a716-446655440000"
+      selector:
+        text:

@@ -1,0 +1,13 @@
+{
+  "domain": "home_pulse",
+  "name": "HomePulse",
+  "version": "1.0.0",
+  "documentation": "https://github.com/kamiljaworski88/homepulse",
+  "issue_tracker": "https://github.com/kamiljaworski88/homepulse/issues",
+  "codeowners": ["@kamiljaworski88"],
+  "requirements": [],
+  "dependencies": [],
+  "after_dependencies": [],
+  "iot_class": "local_push",
+  "homeassistant": "2024.1.0"
+}

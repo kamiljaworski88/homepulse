@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up HomePulse",
+        "description": "HomePulse helps you manage recurring home maintenance tasks with Google Calendar sync. Click Submit to activate."
+      }
+    },
+    "abort": {
+      "already_configured": "HomePulse is already configured."
+    }
+  }
+}
