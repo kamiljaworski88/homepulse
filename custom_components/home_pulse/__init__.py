@@ -19,6 +19,7 @@ from .const import (
     ATTR_GOOGLE_CALENDAR_ENTITY,
     ATTR_INTERVAL_UNIT,
     ATTR_INTERVAL_VALUE,
+    ATTR_LAST_PERFORMED,
     ATTR_TASK_ID,
     ATTR_TITLE,
     DOMAIN,
@@ -148,13 +149,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if not storage.get_task(task_id):
             _LOGGER.error("update_task: task '%s' not found", task_id)
             return
-        await storage.async_update_task(
-            task_id,
-            title=call.data[ATTR_TITLE],
-            interval_value=call.data[ATTR_INTERVAL_VALUE],
-            interval_unit=call.data[ATTR_INTERVAL_UNIT],
-            google_calendar_entity=call.data.get(ATTR_GOOGLE_CALENDAR_ENTITY, ""),
-        )
+        update_kwargs: dict[str, Any] = {
+            "title": call.data[ATTR_TITLE],
+            "interval_value": call.data[ATTR_INTERVAL_VALUE],
+            "interval_unit": call.data[ATTR_INTERVAL_UNIT],
+            "google_calendar_entity": call.data.get(ATTR_GOOGLE_CALENDAR_ENTITY, ""),
+        }
+        if ATTR_LAST_PERFORMED in call.data:
+            update_kwargs["last_performed"] = call.data[ATTR_LAST_PERFORMED]
+        await storage.async_update_task(task_id, **update_kwargs)
         await coordinator.async_request_refresh()
 
     # ------------------------------------------------------------------ #
@@ -202,6 +205,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 vol.Required(ATTR_INTERVAL_VALUE): vol.All(vol.Coerce(int), vol.Range(min=1)),
                 vol.Required(ATTR_INTERVAL_UNIT): vol.In(INTERVAL_UNITS),
                 vol.Optional(ATTR_GOOGLE_CALENDAR_ENTITY, default=""): str,
+                vol.Optional(ATTR_LAST_PERFORMED): str,
             }
         ),
     )

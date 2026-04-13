@@ -102,6 +102,13 @@ update_task:
       selector:
         entity:
           domain: calendar
+    last_performed:
+      name: Last performed date
+      description: Date when the task was last done (YYYY-MM-DD). Recalculates next due date.
+      required: false
+      example: "2025-03-15"
+      selector:
+        text:
 
 delete_task:
   name: Delete Task

@@ -102,13 +102,13 @@ const STYLES = `
     gap: 10px;
     padding: 10px 12px;
     border-radius: 12px;
-    background: #ffffff;
+    background: var(--card-background-color);
     border: 1px solid var(--divider-color);
     transition: border-color 0.2s;
   }
 
   .task-item.overdue {
-    background: color-mix(in srgb, var(--error-color) 8%, #ffffff);
+    background: color-mix(in srgb, var(--error-color) 8%, var(--card-background-color));
     border-left: 3px solid var(--error-color);
     border-color: var(--error-color);
   }
@@ -185,7 +185,7 @@ const STYLES = `
   /* ── Forms (add & edit) ── */
   .add-form, .edit-form {
     border-radius: 12px;
-    background: #ffffff;
+    background: var(--card-background-color);
     border: 1px solid var(--primary-color);
     padding: 14px;
     display: flex;
@@ -240,6 +240,11 @@ const STYLES = `
   }
 
   input:focus, select:focus { border-color: var(--primary-color); }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: var(--date-picker-icon-filter, invert(0));
+    cursor: pointer;
+  }
 
   .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 
@@ -297,7 +302,7 @@ class HomePulseCard extends HTMLElement {
     this._showForm = false;
     this._editingTaskId = null;
     this._form = { title: "", interval_value: "30", interval_unit: "days", google_calendar_entity: "" };
-    this._editForm = { title: "", interval_value: "30", interval_unit: "days", google_calendar_entity: "" };
+    this._editForm = { title: "", interval_value: "30", interval_unit: "days", google_calendar_entity: "", last_performed: "" };
     this._submitting = false;
   }
 
@@ -384,13 +389,14 @@ class HomePulseCard extends HTMLElement {
       interval_value: String(task.interval_value),
       interval_unit: task.interval_unit,
       google_calendar_entity: task.google_calendar_entity,
+      last_performed: task.last_performed ?? "",
     };
     this._showForm = false;
     this._render();
   }
 
   async _submitEdit() {
-    const { title, interval_value, interval_unit, google_calendar_entity } = this._editForm;
+    const { title, interval_value, interval_unit, google_calendar_entity, last_performed } = this._editForm;
     if (!title.trim()) return;
     this._submitting = true;
     this._render();
@@ -401,6 +407,7 @@ class HomePulseCard extends HTMLElement {
         interval_value: parseInt(interval_value, 10),
         interval_unit,
         ...(google_calendar_entity ? { google_calendar_entity } : {}),
+        ...(last_performed ? { last_performed } : {}),
       });
       this._editingTaskId = null;
     } finally {
@@ -519,6 +526,38 @@ class HomePulseCard extends HTMLElement {
       .map((c) => `<option value="${c}"${f.google_calendar_entity === c ? " selected" : ""}>${c}</option>`)
       .join("");
 
+    // Preview next due date based on current form values
+    let nextDuePreview = "";
+    if (f.last_performed) {
+      try {
+        const lp = new Date(f.last_performed + "T00:00:00");
+        let iv = parseInt(f.interval_value, 10) || 1;
+        const unit = f.interval_unit;
+        let next;
+        if (unit === "days") {
+          next = new Date(lp);
+          next.setDate(next.getDate() + iv);
+        } else if (unit === "weeks") {
+          next = new Date(lp);
+          next.setDate(next.getDate() + iv * 7);
+        } else {
+          next = new Date(lp);
+          next.setMonth(next.getMonth() + iv);
+        }
+        const today = new Date(); today.setHours(0,0,0,0);
+        const diffMs = next - today;
+        const diffDays = Math.round(diffMs / 86400000);
+        const nextStr = next.toISOString().slice(0, 10);
+        if (diffDays < 0) {
+          nextDuePreview = `<span style="color:var(--error-color)">Zaległo ${-diffDays} dni · ${nextStr}</span>`;
+        } else if (diffDays === 0) {
+          nextDuePreview = `<span style="color:var(--error-color)">Termin dzisiaj · ${nextStr}</span>`;
+        } else {
+          nextDuePreview = `<span>Za ${diffDays} dni · ${nextStr}</span>`;
+        }
+      } catch (_) {}
+    }
+
     return `
       <div class="edit-form">
         <div class="edit-form-header">
@@ -549,6 +588,11 @@ class HomePulseCard extends HTMLElement {
               ${calOptions}
             </select>
           </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">Ostatnio wykonane</div>
+          <input type="date" data-field="edit-last_performed" value="${this._esc(f.last_performed)}" />
+          ${nextDuePreview ? `<div class="form-label" style="margin-top:4px">Kolejna zmiana: ${nextDuePreview}</div>` : ""}
         </div>
         <div class="form-actions">
           <button class="btn-cancel" data-action="cancel-edit">Anuluj</button>
@@ -681,6 +725,10 @@ class HomePulseCard extends HTMLElement {
       const field = el.dataset.field;
       if (field.startsWith("edit-")) {
         this._editForm[field.slice(5)] = el.value;
+        // Re-render edit form to refresh next-due preview
+        if (field === "edit-last_performed" || field === "edit-interval_value" || field === "edit-interval_unit") {
+          this._render();
+        }
       } else {
         this._form[field] = el.value;
       }

@@ -23,6 +23,7 @@ ATTR_TITLE = "title"
 ATTR_INTERVAL_VALUE = "interval_value"
 ATTR_INTERVAL_UNIT = "interval_unit"
 ATTR_GOOGLE_CALENDAR_ENTITY = "google_calendar_entity"
+ATTR_LAST_PERFORMED = "last_performed"
 
 # Interval units
 INTERVAL_UNIT_DAYS = "days"
