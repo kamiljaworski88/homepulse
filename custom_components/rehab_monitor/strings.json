@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Konfiguracja Rehab Monitor",
+        "description": "Monitoruje wolne terminy rehabilitacyjne na portalu Intermedicus.\n\nLogin i hasło są opcjonalne — zostaw puste jeśli portal nie wymaga logowania.\nNazwa serwisu notify to np. `mobile_app_twoj_telefon`.\n\n{place_hint}",
+        "data": {
+          "login": "Login (opcjonalnie)",
+          "haslo": "Hasło (opcjonalnie)",
+          "notify_service": "Nazwa serwisu powiadomień",
+          "place_id_terapia": "ID miejsca — Terapia dzieci",
+          "place_id_si": "ID miejsca — SI-1-1"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Rehab Monitor jest już skonfigurowany."
+    }
+  }
+}

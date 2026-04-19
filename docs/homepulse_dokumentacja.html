@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HomePulse — Dokumentacja v1.0.1</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #1a1a2e;
+      background: #fff;
+      padding: 40px 60px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 26pt;
+      color: #1565C0;
+      border-bottom: 3px solid #1565C0;
+      padding-bottom: 10px;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      color: #555;
+      font-size: 11pt;
+      margin-bottom: 30px;
+    }
+    h2 {
+      font-size: 16pt;
+      color: #1565C0;
+      margin-top: 32px;
+      margin-bottom: 10px;
+      border-left: 4px solid #1565C0;
+      padding-left: 10px;
+    }
+    h3 {
+      font-size: 12pt;
+      color: #1a237e;
+      margin-top: 18px;
+      margin-bottom: 6px;
+    }
+    p { margin-bottom: 10px; }
+    ul, ol { padding-left: 22px; margin-bottom: 10px; }
+    li { margin-bottom: 4px; }
+    code {
+      background: #f0f4ff;
+      border: 1px solid #c5cae9;
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-family: 'Consolas', monospace;
+      font-size: 10pt;
+    }
+    pre {
+      background: #f5f7ff;
+      border: 1px solid #c5cae9;
+      border-radius: 5px;
+      padding: 14px 18px;
+      margin: 10px 0 14px;
+      overflow-x: auto;
+      font-family: 'Consolas', monospace;
+      font-size: 9.5pt;
+      line-height: 1.5;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px;
+      font-size: 10.5pt;
+    }
+    th {
+      background: #1565C0;
+      color: #fff;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    td {
+      padding: 7px 12px;
+      border-bottom: 1px solid #e0e4f0;
+    }
+    tr:nth-child(even) td { background: #f5f7ff; }
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #1565C0;
+      padding: 12px 16px;
+      margin: 16px 0;
+      border-radius: 0 5px 5px 0;
+    }
+    .page-break { page-break-before: always; }
+    .cover {
+      text-align: center;
+      padding: 80px 0 60px;
+      border-bottom: 2px solid #e0e4f0;
+      margin-bottom: 40px;
+    }
+    .cover h1 { font-size: 32pt; border: none; display: inline-block; }
+    .cover .version {
+      font-size: 14pt;
+      color: #1565C0;
+      font-weight: bold;
+      margin-top: 6px;
+    }
+    .cover .meta {
+      color: #777;
+      font-size: 10pt;
+      margin-top: 20px;
+      line-height: 2;
+    }
+    .toc { margin: 20px 0 30px; }
+    .toc a { color: #1565C0; text-decoration: none; }
+    .toc li { margin-bottom: 5px; }
+    @media print {
+      body { padding: 20px 30px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cover">
+    <h1>HomePulse</h1>
+    <div class="version">Dokumentacja techniczna — wersja 1.0.1</div>
+    <div class="meta">
+      Autor: Kamil Jaworski (@kamiljaworski88)<br>
+      Platforma: Home Assistant<br>
+      Data: kwiecień 2026
+    </div>
+  </div>
+
+  <div class="toc">
+    <h2>Spis treści</h2>
+    <ol>
+      <li>Opis projektu</li>
+      <li>Funkcjonalności</li>
+      <li>Struktura projektu</li>
+      <li>Architektura</li>
+      <li>Model danych</li>
+      <li>Serwisy</li>
+      <li>Instalacja</li>
+      <li>Przykłady automatyzacji</li>
+      <li>Wymagania</li>
+      <li>CI/CD</li>
+    </ol>
+  </div>
+
+  <!-- ===== 1. OPIS ===== -->
+  <h2>1. Opis projektu</h2>
+  <p>
+    <strong>HomePulse</strong> to niestandardowa integracja dla systemu Home Assistant,
+    umożliwiająca zarządzanie cyklicznymi zadaniami konserwacyjnymi w domu.
+    Integracja pozwala śledzić i planować powtarzające się czynności (np. wymiana filtrów,
+    przeglądy urządzeń) oraz automatycznie synchronizować daty wykonania z Google Calendar.
+  </p>
+  <table>
+    <tr><th>Właściwość</th><th>Wartość</th></tr>
+    <tr><td>Domena</td><td><code>home_pulse</code></td></tr>
+    <tr><td>Wersja</td><td>1.0.1</td></tr>
+    <tr><td>Autor</td><td>@kamiljaworski88</td></tr>
+    <tr><td>Min. wersja Home Assistant</td><td>2024.1.0</td></tr>
+    <tr><td>Klasa IoT</td><td><code>local_push</code></td></tr>
+    <tr><td>Repozytorium</td><td>https://github.com/kamiljaworski88/homepulse</td></tr>
+    <tr><td>Tracker błędów</td><td>https://github.com/kamiljaworski88/homepulse/issues</td></tr>
+  </table>
+
+  <!-- ===== 2. FUNKCJONALNOŚCI ===== -->
+  <h2>2. Funkcjonalności</h2>
+  <ul>
+    <li>Tworzenie, edycja, usuwanie i oznaczanie zadań jako wykonanych</li>
+    <li>Zadania z konfigurowalnym interwałem (dni, tygodnie, miesiące)</li>
+    <li>Encje <code>binary_sensor</code> — stan <code>ON</code> oznacza, że zadanie jest wymagane lub zaległe</li>
+    <li>Synchronizacja z Google Calendar po oznaczeniu zadania jako wykonanego</li>
+    <li>Niestandardowa karta Lovelace do zarządzania zadaniami z poziomu dashboardu HA</li>
+    <li>Pasek postępu cyklu konserwacji</li>
+    <li>Automatyczne dopasowanie ikon Material Design na podstawie słów kluczowych w nazwie zadania</li>
+    <li>Obsługa jasnego i ciemnego motywu Home Assistant (zmienne CSS)</li>
+    <li>Wielojęzyczność: język polski i angielski</li>
+    <li>Brak zewnętrznych zależności Python — działa wyłącznie lokalnie</li>
+  </ul>
+
+  <!-- ===== 3. STRUKTURA ===== -->
+  <div class="page-break"></div>
+  <h2>3. Struktura projektu</h2>
+  <pre>homepulse/
+├── .github/
+│   └── workflows/
+│       └── validate.yaml          # CI/CD — walidacja HACS i Hassfest
+├── custom_components/home_pulse/
+│   ├── __init__.py                # Inicjalizacja integracji, rejestracja serwisów
+│   ├── binary_sensor.py           # Platforma encji binarnych (jedna encja = jedno zadanie)
+│   ├── config_flow.py             # Konfiguracja przez UI Home Assistant
+│   ├── const.py                   # Stałe i nazwy serwisów
+│   ├── coordinator.py             # Koordinator danych (odświeżanie co 30 min)
+│   ├── google_calendar.py         # Obsługa integracji z Google Calendar
+│   ├── storage.py                 # Warstwa persystencji zadań
+│   ├── home-pulse-card.js         # Karta Lovelace (Web Component, ~750 linii)
+│   ├── manifest.json              # Manifest integracji HA
+│   ├── services.yaml              # Definicje serwisów HA
+│   ├── strings.json               # Domyślne napisy (PL)
+│   ├── icon.png / icon.svg        # Ikony integracji
+│   └── translations/
+│       ├── en.json                # Tłumaczenie angielskie
+│       └── pl.json                # Tłumaczenie polskie
+├── www/
+│   └── home-pulse-card.js         # Kopia karty dla katalogu www HA
+├── hacs.json                      # Metadane HACS
+├── icon.png / icon.svg
+└── README.md</pre>
+
+  <!-- ===== 4. ARCHITEKTURA ===== -->
+  <h2>4. Architektura</h2>
+
+  <h3>4.1 Backend (Python)</h3>
+  <table>
+    <tr><th>Komponent</th><th>Plik</th><th>Rola</th></tr>
+    <tr><td>Config Flow</td><td><code>config_flow.py</code></td><td>Jednorazowa konfiguracja przez UI HA (bez danych uwierzytelniających)</td></tr>
+    <tr><td>Storage</td><td><code>storage.py</code></td><td>Persystencja zadań w <code>.storage/home_pulse</code></td></tr>
+    <tr><td>Coordinator</td><td><code>coordinator.py</code></td><td>Obliczanie pól pochodnych, odświeżanie co 30 minut</td></tr>
+    <tr><td>Binary Sensor</td><td><code>binary_sensor.py</code></td><td>Tworzenie i aktualizacja jednej encji na zadanie</td></tr>
+    <tr><td>Google Calendar</td><td><code>google_calendar.py</code></td><td>Wywołanie serwisu <code>calendar.create_event</code> w HA</td></tr>
+    <tr><td>Services</td><td><code>__init__.py</code></td><td>Rejestracja i obsługa 4 serwisów HA</td></tr>
+  </table>
+
+  <h3>4.2 Frontend — karta Lovelace (JavaScript)</h3>
+  <p>
+    Karta zaimplementowana jako natywny Web Component (ES6+) bez zewnętrznych zależności.
+    Integruje się ze zmiennymi CSS motywu HA i biblioteką ikon Material Design.
+  </p>
+  <ul>
+    <li>Wyświetlanie i sortowanie zadań: zaległe → pilne → przyszłe</li>
+    <li>Formularz dodawania nowych zadań (popup)</li>
+    <li>Edycja inline z podglądem wyliczonej daty następnego wykonania</li>
+    <li>Pasek postępu cyklu konserwacji</li>
+    <li>Inteligentne ikony MDI dopasowane do nazwy zadania</li>
+    <li>Responsywny układ — przyjazny dla urządzeń mobilnych</li>
+  </ul>
+
+  <!-- ===== 5. MODEL DANYCH ===== -->
+  <div class="page-break"></div>
+  <h2>5. Model danych</h2>
+
+  <h3>5.1 Schemat zadania (przechowywany w <code>.storage/home_pulse</code>)</h3>
+  <pre>{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Wymiana filtra powietrza",
+  "interval_value": 3,
+  "interval_unit": "months",
+  "last_performed": "2024-01-15",
+  "google_calendar_entity": "calendar.dom"
+}</pre>
+
+  <h3>5.2 Atrybuty encji binarnej</h3>
+  <table>
+    <tr><th>Atrybut</th><th>Typ</th><th>Opis</th></tr>
+    <tr><td><code>task_id</code></td><td>string</td><td>Unikalny identyfikator UUID zadania</td></tr>
+    <tr><td><code>next_due_date</code></td><td>string</td><td>Data następnego wykonania (format ISO 8601)</td></tr>
+    <tr><td><code>days_until_next</code></td><td>int</td><td>Liczba dni do terminu (0 gdy zaległe)</td></tr>
+    <tr><td><code>overdue_by_days</code></td><td>int</td><td>Liczba dni opóźnienia (0 gdy aktualne)</td></tr>
+    <tr><td><code>interval_value</code></td><td>int</td><td>Wartość interwału powtarzania</td></tr>
+    <tr><td><code>interval_unit</code></td><td>string</td><td>Jednostka interwału: <code>days</code> / <code>weeks</code> / <code>months</code></td></tr>
+    <tr><td><code>last_performed</code></td><td>string</td><td>Data ostatniego wykonania (ISO 8601)</td></tr>
+    <tr><td><code>google_calendar_entity</code></td><td>string</td><td>ID encji powiązanego kalendarza HA</td></tr>
+  </table>
+
+  <div class="info-box">
+    <strong>Stan encji:</strong> <code>binary_sensor.home_pulse_*</code> — stan <code>ON</code>
+    oznacza, że zadanie jest wymagane (termin minął lub jest dzisiaj). Stan <code>OFF</code>
+    oznacza, że zadanie jest aktualne.
+  </div>
+
+  <!-- ===== 6. SERWISY ===== -->
+  <h2>6. Serwisy</h2>
+
+  <h3><code>home_pulse.add_task</code> — dodaj zadanie</h3>
+  <table>
+    <tr><th>Parametr</th><th>Wymagany</th><th>Opis</th></tr>
+    <tr><td><code>title</code></td><td>tak</td><td>Nazwa zadania</td></tr>
+    <tr><td><code>interval_value</code></td><td>tak</td><td>Liczba jednostek interwału (1–365)</td></tr>
+    <tr><td><code>interval_unit</code></td><td>tak</td><td><code>days</code> / <code>weeks</code> / <code>months</code></td></tr>
+    <tr><td><code>google_calendar_entity</code></td><td>nie</td><td>Encja kalendarza, np. <code>calendar.dom</code></td></tr>
+  </table>
+
+  <h3><code>home_pulse.complete_task</code> — oznacz jako wykonane</h3>
+  <p>Oznacza zadanie jako wykonane dzisiaj i tworzy event w powiązanym kalendarzu Google.</p>
+  <table>
+    <tr><th>Parametr</th><th>Wymagany</th><th>Opis</th></tr>
+    <tr><td><code>task_id</code></td><td>tak</td><td>UUID zadania do oznaczenia</td></tr>
+  </table>
+
+  <h3><code>home_pulse.update_task</code> — edytuj zadanie</h3>
+  <table>
+    <tr><th>Parametr</th><th>Wymagany</th><th>Opis</th></tr>
+    <tr><td><code>task_id</code></td><td>tak</td><td>UUID zadania do edycji</td></tr>
+    <tr><td><code>title</code></td><td>nie</td><td>Nowa nazwa zadania</td></tr>
+    <tr><td><code>interval_value</code></td><td>nie</td><td>Nowy interwał</td></tr>
+    <tr><td><code>interval_unit</code></td><td>nie</td><td>Nowa jednostka interwału</td></tr>
+    <tr><td><code>last_performed</code></td><td>nie</td><td>Ręczna korekta daty ostatniego wykonania</td></tr>
+    <tr><td><code>google_calendar_entity</code></td><td>nie</td><td>Nowa encja kalendarza</td></tr>
+  </table>
+
+  <h3><code>home_pulse.delete_task</code> — usuń zadanie</h3>
+  <table>
+    <tr><th>Parametr</th><th>Wymagany</th><th>Opis</th></tr>
+    <tr><td><code>task_id</code></td><td>tak</td><td>UUID zadania do usunięcia</td></tr>
+  </table>
+
+  <!-- ===== 7. INSTALACJA ===== -->
+  <div class="page-break"></div>
+  <h2>7. Instalacja</h2>
+
+  <h3>7.1 Przez HACS (zalecane)</h3>
+  <ol>
+    <li>Otwórz HACS → Integracje → menu ⋮ → <em>Niestandardowe repozytoria</em></li>
+    <li>Dodaj: <code>https://github.com/kamiljaworski88/homepulse</code> (typ: Integration)</li>
+    <li>Zainstaluj <strong>HomePulse</strong> i zrestartuj Home Assistant</li>
+    <li>Ustawienia → Urządzenia i usługi → Dodaj integrację → wyszukaj „HomePulse"</li>
+  </ol>
+
+  <h3>7.2 Instalacja ręczna</h3>
+  <ol>
+    <li>Skopiuj katalog <code>custom_components/home_pulse/</code> do <code>config/custom_components/</code></li>
+    <li>Zrestartuj Home Assistant</li>
+    <li>Skonfiguruj integrację jak w punkcie 7.1 (krok 4)</li>
+  </ol>
+
+  <h3>7.3 Karta Lovelace</h3>
+  <p>
+    Integracja automatycznie kopiuje plik <code>home-pulse-card.js</code> do katalogu
+    <code>/config/www/</code> i rejestruje zasób Lovelace. Wystarczy dodać kartę do dashboardu:
+  </p>
+  <pre>type: custom:home-pulse-card
+title: "Konserwacja domu"</pre>
+
+  <!-- ===== 8. AUTOMATYZACJE ===== -->
+  <h2>8. Przykłady automatyzacji</h2>
+
+  <h3>Automatyczne oznaczenie zadania</h3>
+  <pre>automation:
+  alias: "Wymień filtr HVAC"
+  trigger:
+    platform: state
+    entity_id: binary_sensor.home_pulse_filtr_hvac
+    to: "on"
+  action:
+    service: home_pulse.complete_task
+    data:
+      task_id: "{{ state_attr('binary_sensor.home_pulse_filtr_hvac', 'task_id') }}"</pre>
+
+  <h3>Powiadomienie o zaległych zadaniach</h3>
+  <pre>automation:
+  alias: "Powiadomienie o zaległościach"
+  trigger:
+    platform: time
+    at: "09:00:00"
+  condition:
+    condition: template
+    value_template: >
+      {{ states.binary_sensor
+         | selectattr('entity_id', 'search', 'home_pulse')
+         | selectattr('state', 'eq', 'on') | list | count > 0 }}
+  action:
+    service: notify.mobile_app
+    data:
+      message: "Masz zaległe zadania konserwacyjne!"</pre>
+
+  <!-- ===== 9. WYMAGANIA ===== -->
+  <h2>9. Wymagania</h2>
+  <table>
+    <tr><th>Składnik</th><th>Wersja minimalna</th><th>Uwagi</th></tr>
+    <tr><td>Home Assistant</td><td>2024.1.0</td><td>Wymagane</td></tr>
+    <tr><td>HACS</td><td>2.0.0</td><td>Tylko przy instalacji przez HACS</td></tr>
+    <tr><td>Google Calendar (HA)</td><td>dowolna</td><td>Opcjonalne — wymagane do synchronizacji kalendarza</td></tr>
+  </table>
+  <div class="info-box">
+    Integracja nie posiada zewnętrznych zależności Python (<code>requirements: []</code>).
+    Dane przechowywane są wyłącznie lokalnie w katalogu <code>.storage/</code> Home Assistant.
+  </div>
+
+  <!-- ===== 10. CI/CD ===== -->
+  <h2>10. CI/CD</h2>
+  <p>Repozytorium posiada zautomatyzowany pipeline walidacyjny oparty na GitHub Actions:</p>
+  <table>
+    <tr><th>Akcja</th><th>Opis</th></tr>
+    <tr><td>HACS Action</td><td>Walidacja struktury integracji zgodnie ze standardami HACS</td></tr>
+    <tr><td>Hassfest</td><td>Oficjalny walidator manifestów i integracji Home Assistant</td></tr>
+  </table>
+  <p>Pipeline uruchamiany jest automatycznie przy każdym push do gałęzi <code>main</code> oraz przy tworzeniu pull requestów.</p>
+
+</body>
+</html>
