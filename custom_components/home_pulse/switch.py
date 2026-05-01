@@ -63,7 +63,7 @@ class HomePulseTaskSwitch(CoordinatorEntity, SwitchEntity):
         self._task_id = task["id"]
         self._attr_name = f"Aktywność: {task['title']}"
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{self._task_id}_switch"
-
+        
     @property
     def is_on(self) -> bool:
         """Zwraca True, jeśli zadanie nie jest zapauzowane."""
@@ -72,14 +72,16 @@ class HomePulseTaskSwitch(CoordinatorEntity, SwitchEntity):
     @property
     def icon(self) -> str:
         """Dynamiczna ikona w zależności od stanu."""
-        return "mdi:timer-play" if self.is_on else "mdi:timer-off-outline"
+        return "mdi:timer-play" if self.is_on else "mdi:timer-off-outline" # Używamy mdi:timer-off-outline dla pauzy
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Wznów zadanie."""
         self.coordinator._task_active_states[self._task_id] = True
-        await self.coordinator.async_request_refresh()
+        self.async_write_ha_state() # Aktualizujemy stan encji
+        await self.coordinator.async_request_refresh() # Wymuszamy odświeżenie danych koordynatora
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Zapauzuj zadanie."""
         self.coordinator._task_active_states[self._task_id] = False
+        self.async_write_ha_state() # Aktualizujemy stan encji
         await self.coordinator.async_request_refresh()
