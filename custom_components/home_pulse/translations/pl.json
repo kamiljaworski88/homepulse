@@ -9,5 +9,16 @@
     "abort": {
       "already_configured": "HomePulse jest już skonfigurowany."
     }
+  },
+  "entity": {
+    "switch": {
+      "home_pulse_task_active": {
+        "name": "Aktywność zadania",
+        "state": {
+          "on": "Aktywne",
+          "off": "Zapauzowane"
+        }
+      }
+    }
   }
 }

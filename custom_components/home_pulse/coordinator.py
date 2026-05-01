@@ -25,6 +25,7 @@ class HomePulseCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
             update_interval=timedelta(minutes=30),
         )
         self._storage = storage
+        self._task_active_states: dict[str, bool] = {}
 
     async def _async_update_data(self) -> list[dict[str, Any]]:
         """Compute derived fields for each task."""
@@ -32,7 +33,15 @@ class HomePulseCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
         today = date.today()
         enriched: list[dict[str, Any]] = []
 
+        # Inicjalizacja stanów dla nowych zadań (domyślnie aktywne)
         for task in tasks:
+            self._task_active_states.setdefault(task["id"], True)
+
+        for task in tasks:
+            # Jeśli zadanie jest zapauzowane, możemy je pominąć lub oznaczyć
+            if not self._task_active_states.get(task["id"], True):
+                continue
+
             next_due = HomePulseStorage.calculate_next_due(
                 task["last_performed"],
                 task["interval_value"],
