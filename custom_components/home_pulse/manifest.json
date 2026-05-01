@@ -1,7 +1,7 @@
 {
   "domain": "home_pulse",
   "name": "HomePulse",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "documentation": "https://github.com/kamiljaworski88/homepulse",
   "issue_tracker": "https://github.com/kamiljaworski88/homepulse/issues",
   "codeowners": ["@kamiljaworski88"],

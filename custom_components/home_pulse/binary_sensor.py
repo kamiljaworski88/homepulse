@@ -118,5 +118,6 @@ class HomePulseBinarySensor(CoordinatorEntity[HomePulseCoordinator], BinarySenso
             "interval_value": task["interval_value"],
             "interval_unit": task["interval_unit"],
             "last_performed": task["last_performed"],
+            "is_active": task.get("is_active", True),
             "google_calendar_entity": task.get("google_calendar_entity", ""),
         }

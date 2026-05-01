@@ -38,10 +38,8 @@ class HomePulseCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
             self._task_active_states.setdefault(task["id"], True)
 
         for task in tasks:
-            # Jeśli zadanie jest zapauzowane, możemy je pominąć lub oznaczyć
-            if not self._task_active_states.get(task["id"], True):
-                continue
-
+            is_active = self._task_active_states.get(task["id"], True)
+            
             next_due = HomePulseStorage.calculate_next_due(
                 task["last_performed"],
                 task["interval_value"],
@@ -56,7 +54,8 @@ class HomePulseCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
                     "next_due_date": next_due.isoformat(),
                     "days_until_next": max(0, days_until),
                     "overdue_by_days": overdue_by,
-                    "is_due": days_until <= 0,
+                    "is_due": is_active and days_until <= 0,
+                    "is_active": is_active,
                 }
             )
 
