@@ -59,6 +59,7 @@ class HomePulseStorage:
             "last_performed": date.today().isoformat(),
             "google_calendar_entity": google_calendar_entity,
             "google_event_id": None,
+            "active": True,
         }
         self._tasks[task_id] = task
         await self.async_save()

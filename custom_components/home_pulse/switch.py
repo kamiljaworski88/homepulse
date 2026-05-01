@@ -67,7 +67,8 @@ class HomePulseTaskSwitch(CoordinatorEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Zwraca True, jeśli zadanie nie jest zapauzowane."""
-        return self.coordinator._task_active_states.get(self._task_id, True)
+        task = self.coordinator._storage.get_task(self._task_id)
+        return task.get("active", True) if task else True
 
     @property
     def icon(self) -> str:
@@ -76,12 +77,12 @@ class HomePulseTaskSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Wznów zadanie."""
-        self.coordinator._task_active_states[self._task_id] = True
+        await self.coordinator._storage.async_update_task(self._task_id, active=True)
         self.async_write_ha_state() # Aktualizujemy stan encji
         await self.coordinator.async_request_refresh() # Wymuszamy odświeżenie danych koordynatora
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Zapauzuj zadanie."""
-        self.coordinator._task_active_states[self._task_id] = False
+        await self.coordinator._storage.async_update_task(self._task_id, active=False)
         self.async_write_ha_state() # Aktualizujemy stan encji
         await self.coordinator.async_request_refresh()

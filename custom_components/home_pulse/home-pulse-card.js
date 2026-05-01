@@ -182,6 +182,25 @@ const STYLES = `
   .btn-icon.edit:hover     { filter: brightness(1.12); }
   .btn-icon.delete:hover   { background: color-mix(in srgb, var(--error-color) 12%, transparent); }
 
+  /* ── Inactive task styling ── */
+  .task-item.inactive {
+    opacity: 0.7;
+    filter: grayscale(30%);
+  }
+  .task-item.inactive .task-title,
+  .task-item.inactive .task-meta {
+    color: var(--secondary-text-color);
+  }
+  .task-item.inactive .task-icon {
+    color: var(--secondary-text-color);
+  }
+  .task-item .btn-icon[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .task-item.inactive .progress-fill { background: var(--divider-color); }
+
   /* ── Forms (add & edit) ── */
   .add-form, .edit-form {
     border-radius: 12px;
@@ -359,6 +378,7 @@ class HomePulseCard extends HTMLElement {
         interval_value: s.attributes.interval_value ?? 1,
         interval_unit: s.attributes.interval_unit ?? "days",
         last_performed: s.attributes.last_performed ?? "",
+        is_active: s.attributes.is_active ?? true,
         google_calendar_entity: s.attributes.google_calendar_entity ?? "",
       }))
       .sort((a, b) => {
@@ -482,10 +502,11 @@ class HomePulseCard extends HTMLElement {
   }
 
   _taskHtml(task) {
+    if (!task.is_active) task.is_due = false;
+
     const pct = progressPercent(task);
     const overdue = task.is_due && task.overdue_by_days > 0;
     const fillClass = overdue ? "danger" : pct >= 80 ? "warn" : "";
-
     let meta;
     if (overdue) {
       meta = `<span class="task-meta overdue">Zaległo ${task.overdue_by_days} dni temu</span>`;
@@ -496,7 +517,7 @@ class HomePulseCard extends HTMLElement {
     }
 
     return `
-      <div class="task-item${overdue || task.days_until_next === 0 ? " overdue" : ""}">
+      <div class="task-item${overdue || task.days_until_next === 0 ? " overdue" : ""}${!task.is_active ? " inactive" : ""}">
         <ha-icon class="task-icon${overdue ? " overdue" : ""}" icon="${getIcon(task.title)}"></ha-icon>
         <div class="task-body">
           <div class="task-title">${this._esc(task.title)}</div>
@@ -506,7 +527,7 @@ class HomePulseCard extends HTMLElement {
           </div>
         </div>
         <div class="task-actions">
-          <button class="btn-icon complete" data-action="complete" data-task-id="${task.task_id}" title="Oznacz jako wykonane">
+          <button class="btn-icon complete" data-action="complete" data-task-id="${task.task_id}" title="Oznacz jako wykonane" ${!task.is_active ? "disabled" : ""}>
             <ha-icon icon="mdi:check-circle-outline"></ha-icon>
           </button>
           <button class="btn-icon edit" data-action="edit" data-task-id="${task.task_id}" title="Edytuj zadanie">
