@@ -1,5 +1,6 @@
 {
   "name": "HomePulse",
   "category": "integration",
-  "render_readme": true
+  "render_readme": true,
+  "content_directory": "custom_components/home_pulse"
 }
