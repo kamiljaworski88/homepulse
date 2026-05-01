@@ -5,7 +5,7 @@ DOMAIN = "home_pulse"
 STORAGE_KEY = "home_pulse"
 STORAGE_VERSION = 1
 
-PLATFORMS = ["binary_sensor"]
+PLATFORMS = ["binary_sensor", "switch"]
 
 # Dispatcher signals
 SIGNAL_NEW_TASK = f"{DOMAIN}_new_task"

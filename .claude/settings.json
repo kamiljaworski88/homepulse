@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git --version)",
+      "Bash(curl --version)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(explorer \"C:\\\\Users\\\\Dell\\\\brace_tracker_base\\\\build\\\\app\\\\outputs\\\\flutter-apk\")",
+      "Bash(start \"\" \"C:\\\\Users\\\\Dell\\\\brace_tracker_base\\\\build\\\\app\\\\outputs\\\\flutter-apk\")",
+      "Bash(xargs -I{} gh run view --repo kamiljaworski88/heatstats {} --log-failed)",
+      "Bash(gh search *)",
+      "Bash(gh api *)",
+      "Bash(xargs -I{} gh run view --repo kamiljaworski88/heatstats {} --log)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Dell\\brace_tracker_base\\lib\\providers",
+      "C:\\Users\\Dell\\brace_tracker_base\\lib\\services",
+      "c:\\Users\\Dell\\heatstats\\www",
+      "c:\\Users\\Dell\\heatstats"
+    ]
+  }
+}

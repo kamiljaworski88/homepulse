@@ -1,0 +1,12 @@
+{
+  "domain": "open_meteo_weather",
+  "name": "Open-Meteo Weather",
+  "version": "1.0.0",
+  "documentation": "https://github.com/kamiljaworski88/open-meteo-weather",
+  "issue_tracker": "https://github.com/kamiljaworski88/open-meteo-weather/issues",
+  "requirements": [],
+  "dependencies": ["frontend"],
+  "codeowners": ["@kamiljaworski88"],
+  "iot_class": "cloud_polling",
+  "config_flow": true
+}

@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Open-Meteo Weather",
+        "description": "Skonfiguruj lokalizację dla której chcesz pobrać pogodę.",
+        "data": {
+          "name": "Nazwa lokalizacji",
+          "latitude": "Szerokość geograficzna",
+          "longitude": "Długość geograficzna",
+          "timezone": "Strefa czasowa",
+          "update_interval": "Interwał aktualizacji (sekundy)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie można połączyć z API Open-Meteo",
+      "invalid_coords": "Nieprawidłowe współrzędne geograficzne"
+    },
+    "abort": {
+      "already_configured": "Lokalizacja już skonfigurowana"
+    }
+  }
+}

@@ -9,6 +9,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
+from .coordinator import HomePulseCoordinator
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -27,7 +28,7 @@ async def async_setup_entry(
 class HomePulseTaskSwitch(CoordinatorEntity, SwitchEntity):
     """Przełącznik pauzujący konkretne zadanie HomePulse."""
 
-    def __init__(self, coordinator: Any, task: dict[str, Any]) -> None:
+    def __init__(self, coordinator: HomePulseCoordinator, task: dict[str, Any]) -> None:
         super().__init__(coordinator)
         self._task_id = task["id"]
         self._attr_name = f"Aktywność: {task['title']}"
