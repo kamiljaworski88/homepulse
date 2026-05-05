@@ -176,9 +176,13 @@ const STYLES = `
 
   .btn-icon:hover    { background: rgba(0,0,0,0.06); }
   .btn-icon.complete { color: var(--success-color, #4caf50); }
+  .btn-icon.pause    { color: var(--warning-color, #ff9800); }
+  .btn-icon.resume   { color: var(--success-color, #4caf50); }
   .btn-icon.edit     { color: #ffffff; background: var(--primary-color); border-radius: 8px; }
   .btn-icon.delete   { color: var(--error-color); }
   .btn-icon.complete:hover { background: color-mix(in srgb, var(--success-color,#4caf50) 12%, transparent); }
+  .btn-icon.pause:hover    { background: color-mix(in srgb, var(--warning-color,#ff9800) 12%, transparent); }
+  .btn-icon.resume:hover   { background: color-mix(in srgb, var(--success-color,#4caf50) 12%, transparent); }
   .btn-icon.edit:hover     { filter: brightness(1.12); }
   .btn-icon.delete:hover   { background: color-mix(in srgb, var(--error-color) 12%, transparent); }
 
@@ -398,6 +402,10 @@ class HomePulseCard extends HTMLElement {
     await this._hass.callService(DOMAIN, "complete_task", { task_id: taskId });
   }
 
+  async _togglePause(taskId) {
+    await this._hass.callService(DOMAIN, "toggle_pause", { task_id: taskId });
+  }
+
   async _deleteTask(taskId) {
     await this._hass.callService(DOMAIN, "delete_task", { task_id: taskId });
   }
@@ -530,6 +538,9 @@ class HomePulseCard extends HTMLElement {
         <div class="task-actions">
           <button class="btn-icon complete" data-action="complete" data-task-id="${task.task_id}" title="Oznacz jako wykonane" ${!task.is_active ? "disabled" : ""}>
             <ha-icon icon="mdi:check-circle-outline"></ha-icon>
+          </button>
+          <button class="btn-icon ${task.is_active ? "pause" : "resume"}" data-action="toggle-pause" data-task-id="${task.task_id}" title="${task.is_active ? "Wstrzymaj zadanie" : "Wznów zadanie"}">
+            <ha-icon icon="${task.is_active ? "mdi:pause-circle-outline" : "mdi:play-circle-outline"}"></ha-icon>
           </button>
           <button class="btn-icon edit" data-action="edit" data-task-id="${task.task_id}" title="Edytuj zadanie">
             <ha-icon icon="mdi:pencil-outline"></ha-icon>
@@ -710,6 +721,9 @@ class HomePulseCard extends HTMLElement {
           break;
         case "complete":
           this._completeTask(taskId);
+          break;
+        case "toggle-pause":
+          this._togglePause(taskId);
           break;
         case "edit": {
           const task = this._getTasks().find((t) => t.task_id === taskId);

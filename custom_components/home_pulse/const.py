@@ -16,6 +16,7 @@ SERVICE_COMPLETE_TASK = "complete_task"
 SERVICE_ADD_TASK = "add_task"
 SERVICE_UPDATE_TASK = "update_task"
 SERVICE_DELETE_TASK = "delete_task"
+SERVICE_TOGGLE_PAUSE = "toggle_pause"
 
 # Service / task attributes
 ATTR_TASK_ID = "task_id"

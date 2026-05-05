@@ -28,6 +28,7 @@ from .const import (
     SERVICE_ADD_TASK,
     SERVICE_COMPLETE_TASK,
     SERVICE_DELETE_TASK,
+    SERVICE_TOGGLE_PAUSE,
     SERVICE_UPDATE_TASK,
     SIGNAL_DELETE_TASK,
     SIGNAL_NEW_TASK,
@@ -171,6 +172,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             async_dispatcher_send(hass, SIGNAL_DELETE_TASK, task_id)
 
     # ------------------------------------------------------------------ #
+    # Service: home_pulse.toggle_pause                                     #
+    # ------------------------------------------------------------------ #
+    async def handle_toggle_pause(call: ServiceCall) -> None:
+        task_id: str = call.data[ATTR_TASK_ID]
+        task = storage.get_task(task_id)
+        if not task:
+            _LOGGER.error("toggle_pause: task '%s' not found", task_id)
+            return
+        await storage.async_update_task(task_id, active=not task.get("active", True))
+        await coordinator.async_request_refresh()
+
+    # ------------------------------------------------------------------ #
     # Register services                                                    #
     # ------------------------------------------------------------------ #
     hass.services.async_register(
@@ -217,6 +230,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         schema=vol.Schema({vol.Required(ATTR_TASK_ID): str}),
     )
 
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_TOGGLE_PAUSE,
+        handle_toggle_pause,
+        schema=vol.Schema({vol.Required(ATTR_TASK_ID): str}),
+    )
+
     return True
 
 
@@ -225,6 +245,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id)
-        for service in (SERVICE_COMPLETE_TASK, SERVICE_ADD_TASK, SERVICE_UPDATE_TASK, SERVICE_DELETE_TASK):
+        for service in (SERVICE_COMPLETE_TASK, SERVICE_ADD_TASK, SERVICE_UPDATE_TASK, SERVICE_DELETE_TASK, SERVICE_TOGGLE_PAUSE):
             hass.services.async_remove(DOMAIN, service)
     return unloaded

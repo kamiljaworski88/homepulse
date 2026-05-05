@@ -121,3 +121,17 @@ delete_task:
       example: "550e8400-e29b-41d4-a716-446655440000"
       selector:
         text:
+
+toggle_pause:
+  name: Toggle Pause
+  description: >
+    Pauses an active task (stops it from being marked as overdue) or resumes
+    a paused task. Toggling is idempotent — call again to reverse.
+  fields:
+    task_id:
+      name: Task ID
+      description: Unique identifier (UUID) of the task to pause or resume.
+      required: true
+      example: "550e8400-e29b-41d4-a716-446655440000"
+      selector:
+        text:
