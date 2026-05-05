@@ -327,6 +327,7 @@ class HomePulseCard extends HTMLElement {
     this._form = { title: "", interval_value: "30", interval_unit: "days", google_calendar_entity: "" };
     this._editForm = { title: "", interval_value: "30", interval_unit: "days", google_calendar_entity: "", last_performed: "" };
     this._submitting = false;
+    this._optimisticActive = {}; // taskId → temporary is_active override for instant feedback
   }
 
   // ── HA interface ─────────────────────────────────────────────────────────
@@ -354,7 +355,10 @@ class HomePulseCard extends HTMLElement {
       prev.length !== curr.length ||
       curr.some((id) => prevHass.states[id] !== hass.states[id]);
 
-    if (changed) this._render();
+    if (changed) {
+      this._optimisticActive = {};
+      this._render();
+    }
   }
 
   static getConfigElement() {
@@ -382,7 +386,9 @@ class HomePulseCard extends HTMLElement {
         interval_value: s.attributes.interval_value ?? 1,
         interval_unit: s.attributes.interval_unit ?? "days",
         last_performed: s.attributes.last_performed ?? "",
-        is_active: s.attributes.is_active ?? true, // Dodano atrybut is_active
+        is_active: s.attributes.task_id in this._optimisticActive
+          ? this._optimisticActive[s.attributes.task_id]
+          : (s.attributes.is_active ?? true), // Dodano atrybut is_active
         google_calendar_entity: s.attributes.google_calendar_entity ?? "",
       }))
       .sort((a, b) => {
@@ -403,6 +409,10 @@ class HomePulseCard extends HTMLElement {
   }
 
   async _togglePause(taskId) {
+    const task = this._getTasks().find((t) => t.task_id === taskId);
+    if (!task) return;
+    this._optimisticActive[taskId] = !task.is_active;
+    this._render();
     await this._hass.callService(DOMAIN, "toggle_pause", { task_id: taskId });
   }
 
