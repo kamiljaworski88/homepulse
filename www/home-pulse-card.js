@@ -392,6 +392,7 @@ class HomePulseCard extends HTMLElement {
         google_calendar_entity: s.attributes.google_calendar_entity ?? "",
       }))
       .sort((a, b) => {
+        if (a.is_active !== b.is_active) return a.is_active ? -1 : 1;
         if (a.is_due !== b.is_due) return a.is_due ? -1 : 1;
         return a.days_until_next - b.days_until_next;
       });
